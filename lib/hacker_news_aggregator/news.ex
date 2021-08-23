@@ -25,7 +25,7 @@ defmodule HackerNewsAggregator.News do
     GenServer.call(__MODULE__, :top_stories)
   end
 
-  def top_story(id) do
+  def story(id) do
     GenServer.call(__MODULE__, {:top_story, id})
   end
 

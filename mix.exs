@@ -23,7 +23,9 @@ defmodule HackerNewsAggregator.MixProject do
   defp deps do
     [
       {:jason, "~> 1.2"},
-      {:httpoison, "~> 1.8"}
+      {:httpoison, "~> 1.8"},
+      {:plug_cowboy, "~> 2.0"},
+      {:scrivener_list, "~> 2.0"}
     ]
   end
 end
