@@ -46,6 +46,9 @@ defmodule HackerNewsAggregator.News do
     case(Enum.find(top_stories, &(&1["id"] == id))) do
       nil ->
         case StoriesAPI.get_story(StoriesAPI.new(), id) do
+          {:ok, nil} ->
+            {:reply, {:error, :not_found}, state}
+
           {:ok, story} ->
             {:reply, {:ok, story}, state}
 

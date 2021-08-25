@@ -15,13 +15,25 @@ defmodule HackerNewsAggregatorWeb.HackerNewsController do
 
   def get_story(conn) do
     {:ok, id} = Map.fetch(conn.params, "id")
-    {:ok, resp} = News.story(id)
 
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(resp))
+    case News.story(id) do
+      {:ok, resp} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(resp))
+
+      {:error, :not_found} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!("not found story with id #{id}"))
+
+      _error ->
+        {:error, :internal_server_error}
+    end
   end
 
-  defp maybe_put_default_config(%{page: _page_number, page_size: _page_size} = params), do: params
+  defp maybe_put_default_config(%{page: page_number, page_size: page_size}),
+    do: %Scrivener.Config{page_number: page_number, page_size: page_size}
+
   defp maybe_put_default_config(_params), do: %Scrivener.Config{page_number: 1, page_size: 10}
 end
