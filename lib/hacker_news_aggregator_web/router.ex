@@ -18,4 +18,8 @@ defmodule HackerNewsAggregatorWeb.Router do
   get "/story" do
     HackerNewsController.get_story(conn)
   end
+
+  match _ do
+    send_resp(conn, 404, "Not found")
+  end
 end

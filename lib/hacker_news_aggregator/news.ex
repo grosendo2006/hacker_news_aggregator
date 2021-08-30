@@ -79,7 +79,32 @@ defmodule HackerNewsAggregator.News do
   end
 
   def handle_info(:get_top_stories, %TopStories{top_stories_ids: stories_ids} = top_stories) do
+    send(self(), :send_web_socket)
     {:noreply, Map.put(top_stories, :top_stories, Enum.map(stories_ids, &get_story(&1)))}
+  end
+
+  @impl true
+  @doc """
+  Send stories to web sockets
+  """
+  def handle_info(:send_web_socket, %TopStories{top_stories: top_stories} = state) do
+    case Registry.lookup(Registry.HackerNewsAggregator, :web_socket_top_stories) do
+      [] ->
+        :ok
+
+      _ ->
+        Registry.dispatch(
+          Registry.HackerNewsAggregator,
+          :web_socket_top_stories,
+          &Enum.each(&1, fn {pid, _} ->
+            send(pid, {:top_stories, top_stories})
+          end)
+        )
+
+        :ok
+    end
+
+    {:noreply, state}
   end
 
   defp get_story(id) do
